@@ -1,15 +1,17 @@
 'use strict';
 
+var Logger = require('dw/system/Logger');
+
 /**
  * Feed Download Service
  *
  * This file acts as a wrapper for the TurnTo Feed Download Service calls
  */
 /* API Modules */
-var LocalServiceRegistry = require('dw/svc/LocalServiceRegistry');
+var dwsvc = require('dw/svc');
 
 /* Script Modules */
-var ServiceFactory = require('*/cartridge/scripts/util/serviceFactory');
+var ServiceFactory = require('~/cartridge/scripts/util/ServiceFactory');
 
 /* Constants */
 var serviceName = ServiceFactory.SERVICES.UPLOAD;
@@ -20,24 +22,32 @@ var serviceName = ServiceFactory.SERVICES.UPLOAD;
  *
  */
 var serviceConfig = {
-    executeOverride: true,
-    createRequest: function (svc, params) {
-        svc.setURL(params.path);
-        svc.setRequestMethod(params.requestMethod);
-        return params;
+	executeOverride: true,
+    createRequest: function (service, requestDataContainer) {
+    	
+        var request = {};
+        request.URL = requestDataContainer.path;
+        request.requestMethod = requestDataContainer.requestMethod;
+        request.args = requestDataContainer.args;
+
+        return request;
     },
-    execute: function (svc, requestObject) {
-        var client = svc.getClient();
-        client.open(requestObject.requestMethod, requestObject.path);
-        var result = client.sendMultiPart(requestObject.args);
+    execute: function (service, requestObject) {   	
+        var client = service.getClient();
+        client.open(requestObject.requestMethod, requestObject.URL);
+        result = client.sendMultiPart( requestObject.args);
+
         return result;
     },
-    parseResponse: function (svc, client) {
-        return client;
+    parseResponse: function (service, response) {
+        return response;
+    },
+    mockCall: function (service, request) {
+        return {};
     },
     filterLogMessage: function (msg) {
         return msg;
     }
 };
 
-module.exports = LocalServiceRegistry.createService(serviceName, serviceConfig);
+module.exports = dwsvc.LocalServiceRegistry.createService(serviceName, serviceConfig);

@@ -53,7 +53,6 @@ function populateTeaser(counts) {
 	if (counts.reviews > 0) { // has reviews
 		fragment.appendChild(generateTeaserStars(counts.avgRating)); 
 		fragment.appendChild(generateReadReviews(counts.reviews));
-
 		if (counts.questions > 0) {
 			fragment.appendChild(document.createTextNode(' | '));
 			fragment.appendChild(generateQuestions(counts.questions, counts.answers));
@@ -79,20 +78,21 @@ function populateTeaser(counts) {
 	if (!teaserElem) {
 		return;
 	}
-	teaserElem.textContent = '';
 	teaserElem.appendChild(fragment);
 	// add event listener to handle click to open the write a review screen 
 	document.querySelector('.TTteaser__write-review').addEventListener('click', function(e) {
 		TurnToCmd('reviewsList.writeReview');
 	});
 
+	// add event listener to display the tab the reviews are displayed under
+	document.querySelector('.TTteaser__read-reviews').addEventListener('click',
+		function(e) { showTab(); }
+	);
+
 	// event listener to display the tab Q&A is displayed under
-	var qaElement = document.querySelector('.TTteaser__read-qa');
-	if (qaElement) {
-		document.querySelector('.TTteaser__read-qa').addEventListener('click',
-			function(e) { showTab(); }
-		);
-	}
+	document.querySelector('.TTteaser__read-qa').addEventListener('click',
+		function(e) { showTab(); }
+	);
 }
 
 /**
@@ -185,11 +185,7 @@ function generateReadReviews(numReviews) {
 	// Populate the 'Read x Reviews' text with the number of reviews and set
 	var text = 'Read ' + numReviews + ' Review' + (numReviews > 1 ? 's' : '');
 	var el = createTeaserElement('a', 'TTteaser__read-reviews', text);
-	el.setAttribute('href', '#tt-reviews-list');
-	// add event listener to display the tab the reviews are displayed under
-	el.addEventListener('click',
-		function(e) { showTab(); }
-	);
+	el.setAttribute('href', '#tt-reviews-list'); 
 	return el;
 }
 
@@ -253,10 +249,11 @@ function generateTeaserStars(rating) {
 	return el;
 }
 
-// Javascript to load on page load
+/* Javascript to load on page load*/
 $(document).ready(function () {
-	// PDP teasers only
-    if ($('span.productsku').text().length) {
+	//PDP teasers only
+	if( $('span.productsku').text().length ) {
 		loadTeaserCounts($('span.productsku').text());
-    }
+	}
 });
+

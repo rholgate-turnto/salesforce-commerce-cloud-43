@@ -1,35 +1,37 @@
-'use strict';
-
 /*
  * Order Helper to write order and product data
- *
+ * 
  */
-
+ 
 var Site = require('dw/system/Site');
+var FileWriter = require('dw/io/FileWriter');
 var URLUtils = require('dw/web/URLUtils');
+var Order = require('dw/order/Order');
+var Product = require('dw/catalog/Product');
 var Calendar = require('dw/util/Calendar');
-var StringUtils = require('dw/util/StringUtils');
 
-/* Script Modules */
-var TurnToHelper = require('*/cartridge/scripts/util/turnToHelperUtil');
+/*Script Modules*/
+var TurnToHelper = require('*/cartridge/scripts/util/TurnToHelperUtil');
 
 var OrderWriterHelper = {
+		
 	/**
 	 * @function
 	 * @name getLocalizedTurnToPreferenceValue
-	 * @param {dw.order.Order} order - order
-	 * @param {dw.io.FileWriter} fileWriter - file writer
-	 * @param {string} currentLocale - The name of the localized
+	 * @param preferenceName The name of the localized TurnTo SitePreference to retrieve
+	 * @param locale The locale in which to retrieve a value. If not matching locale is returned, the default is used
+	 * @return {String} The localized value of the Site Preference specified by the preferenceName parameter
 	 */
-    writeOrderData: function (order, fileWriter, currentLocale) {
+	writeOrderData: function( order, fileWriter, currentLocale) {
+
 		// Get all of the product line items for the order
-		var products = order.getAllProductLineItems();
+		var products : Collection = order.getAllProductLineItems();
 		
-		var useVariants = Site.getCurrent().getCustomPreferenceValue('turntoUseVariants') == true;
+		var useVariants : Boolean = Site.getCurrent().getCustomPreferenceValue('turntoUseVariants') == true;
 		
-		for (var i = 0; i < products.size(); i++) {
-			var productLineItem = products[i];
-			var product = productLineItem.getProduct();
+		for (var i : Number = 0; i < products.size(); i++) {
+			var productLineItem : ProductLineItem = products[i];
+			var product : Product = productLineItem.getProduct();
 			if (product == null){
 				continue;
 			}
@@ -44,7 +46,7 @@ var OrderWriterHelper = {
 		
 			// ORDERDATE
 			// Format: 2011-08-25 20:50:15
-			var creationDate = order.getCreationDate();
+			var creationDate : Date = order.getCreationDate();
 			var creationStr = dw.util.StringUtils.formatCalendar(new Calendar(creationDate), "yyyy-MM-dd hh:mm:ss");
 			fileWriter.write(creationStr);
 			fileWriter.write("\t");
@@ -65,7 +67,7 @@ var OrderWriterHelper = {
 			fileWriter.write("\t");
 		
 			//ZIP
-			var billingAddress = order.getBillingAddress();
+			var billingAddress : OrderAddress = order.getBillingAddress();
 			fileWriter.write(billingAddress.getPostalCode());
 			fileWriter.write("\t");
 		
@@ -86,10 +88,7 @@ var OrderWriterHelper = {
 			fileWriter.write("\t");
 		
 			//ITEMIMAGEURL
-			var image = product.getImage("hi-res", 0);
-			if (image == null){
-				image = product.getImage("large", 0);
-			}
+			var image : MediaFile = product.getImage("large", 0);
 			if (image == null){
 				image = product.getImage("medium", 0);
 			}
@@ -112,12 +111,6 @@ var OrderWriterHelper = {
 			fileWriter.write("\t");
 		
 			//DELIVERYDATE
-			var shipment = productLineItem.getShipment();
-			if (shipment) {
-				var deliveryDate = shipment.getCreationDate();
-				var deliveryDateString = dw.util.StringUtils.formatCalendar(new Calendar(deliveryDate), "yyyy-MM-dd hh:mm:ss");
-				fileWriter.write(deliveryDateString);
-			}
 			fileWriter.write("\t");
 		
 			//NICKNAME

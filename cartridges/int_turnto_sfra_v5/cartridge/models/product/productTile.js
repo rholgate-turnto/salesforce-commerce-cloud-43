@@ -1,7 +1,6 @@
 'use strict';
-
 var base = module.superModule;
-var ratingsDecorator = require('*/cartridge/models/product/decorators/ratingsTurnto');
+var ratingsDecorator = require('~/cartridge/models/product/decorators/ratingsTurnto');
 
 /**
  * Decorate product with product tile information
@@ -12,7 +11,8 @@ var ratingsDecorator = require('*/cartridge/models/product/decorators/ratingsTur
  * @returns {Object} - Decorated product model
  */
 module.exports = function productTile(product, apiProduct, productType) {
-    base.call(this, product, apiProduct, productType);
-    ratingsDecorator(product, apiProduct);
+	base.call(this, product, apiProduct, productType);
+	ratingsDecorator(product, apiProduct);
+
     return product;
 };
