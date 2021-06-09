@@ -46,6 +46,20 @@ var run = function run() {
 
 		//loop through all allowed locales per site
 		for each(var currentLocale in TurnToHelper.getAllowedLocales()) {
+            // Find all products with Average Rating/Review Count values to check for products that need to be reset
+            var allProducts = ProductMgr.queryAllSiteProductsSorted();
+            var productsToReset = []
+            allProducts.forEach(function (product) {
+                var hasValues = (product.custom.turntoAverageRating || 
+                product.custom.turntoReviewCount || 
+                product.custom.turntoRelatedReviewCount || 
+                product.custom.turntoCommentCount)
+                
+                if (hasValues) {
+                    // anything that's found in the file will be removed
+                    productsToReset[product.getID()] = product;
+                }  
+            })
 
 			try {
 				var importfile : File = new File(File.IMPEX + File.SEPARATOR + "TurnTo" + File.SEPARATOR + currentLocale + File.SEPARATOR + importFileName);//"turnto-skuaveragerating.xml");
@@ -68,6 +82,9 @@ var run = function run() {
 								var productNode : XML = xmlStreamReader.readXMLObject();
 								var product = ProductMgr.getProduct(productNode.attribute('sku'));
 								if(product != null) {
+                                    if (productsToReset[product.getID()]) {
+                                        delete(productsToReset)[product.getID]
+                                    }}
 									var reviewCount = parseInt(productNode.attribute("review_count"));
 									var relatedReviewCount = parseInt(productNode.attribute("related_review_count"));
 									var commentCount = parseInt(productNode.attribute("comment_count"));
@@ -95,6 +112,14 @@ var run = function run() {
 					}
 				}
 			} finally {
+                
+                productsToReset.forEach(function (productToReset) {
+                    productToReset.custom.turntoAverageRating = null;
+                    productToReset.custom.turntoReviewCount = null;
+                    productToReset.custom.turntoRelatedReviewCount = null;
+                    productToReset.custom.turntoCommentCount = null;
+                });
+                
 				if (xmlStreamReader != null) {
 					xmlStreamReader.close();
 				}
