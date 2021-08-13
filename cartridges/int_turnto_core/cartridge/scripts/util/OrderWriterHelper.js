@@ -112,6 +112,15 @@ var OrderWriterHelper = {
 		
 			//DELIVERYDATE
 			fileWriter.write("\t");
+            var shipment = productLineItem.getShipment();
+            var deliveryDateString = "2040-01-01 00:00:00"; // v4.3 will set delivery date to purchase date if no value is set explicitely
+			if (shipment) {
+				var deliveryDate = shipment.getCreationDate();
+			    deliveryDateString = dw.util.StringUtils.formatCalendar(new Calendar(deliveryDate), "yyyy-MM-dd hh:mm:ss");
+            }
+
+			fileWriter.write(deliveryDateString);
+			fileWriter.write("\t");
 		
 			//NICKNAME
 			fileWriter.write("\t");
